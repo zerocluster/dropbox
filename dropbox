@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# curl -fsSLO https://bitbucket.org/softvisio/dropbox/raw/master/dropbox && chmod +x dropbox
+
+set -e
+
+SCRIPT_DIR="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
+
+export TAG=latest
+export NAME=dropbox
+export DOCKERHUB_NAMESPACE=softvisio
+export SERVICE=1
+export CONTAINER_NAME=
+
+# docker container restart policy, https://docs.docker.com/config/containers/start-containers-automatically/
+export RESTART=unless-stopped
+
+# seconds to wait for stop before killing container, https://docs.docker.com/engine/reference/commandline/stop/#options
+export KILL_TIMEOUT=600
+
+export DOCKER_CONTAINER_ARGS="
+    -h $(hostname) \
+    -v $SCRIPT_DIR/data:/root/Dropbox \
+    -v dropbox:/root/.dropbox \
+    -p 17500:17500 \
+    --init \
+    --entrypoint /root/.dropbox-dist/dropboxd \
+"
+
+curl -fsSL https://bitbucket.org/softvisio/scripts/raw/master/docker.sh | /bin/bash -s -- "$@"
